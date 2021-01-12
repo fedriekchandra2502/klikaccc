@@ -21,7 +21,7 @@ class CreateTrxPoDsTable extends Migration
             $table->decimal('po_item_price');
             $table->decimal('po_item_cost');
             $table->timestamps();
-            $table->dateTime('deleted_at');
+            $table->dateTime('deleted_at')->nullable();
         });
     }
 

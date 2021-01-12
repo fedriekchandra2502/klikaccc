@@ -11,6 +11,11 @@ class ms_item extends Model
     use HasFactory;
     use SoftDeletes;
     protected $table = 'ms_item';
+    protected $fillable = [
+        'name',
+        'price',
+        'cost'
+    ];
 
     public function POD() {
         return $this->hasMany(trx_po_d::class ,'po_item_id');

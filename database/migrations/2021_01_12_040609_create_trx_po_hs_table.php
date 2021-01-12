@@ -20,7 +20,7 @@ class CreateTrxPoHsTable extends Migration
             $table->decimal('po_price_total');
             $table->decimal('po_cost_total');
             $table->timestamps();
-            $table->dateTime('deleted_at');
+            $table->dateTime('deleted_at')->nullable();
         });
     }
 

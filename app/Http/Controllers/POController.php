@@ -26,24 +26,78 @@ class POController extends Controller
         }
         $date = Carbon::now()->format('Ym');
         $po_number = $date . '-' . $id;
-        // foreach() {
 
-        // }
+        $item_ids = $request->input('item_id');
+        $po_price = [];
+        $po_cost = [];
+        $po_price_total = 0;
+        $po_cost_total = 0;
+        foreach($item_ids as $key => $item_id) {
+            $item = ms_item::find($item_id);
+            $po_price[$key] = $item->price * $request->input('item_qty')[$key];
+            $po_cost[$key] = $item->cost * $request->input('item_qty')[$key];
+            $po_price_total += $item->price * $request->input('item_qty')[$key];
+            $po_cost_total += $item->cost * $request->input('item_qty')[$key];
+
+        }
+
         $newPO = trx_po_h::create([
             'po_number' => $po_number,
             'po_date' => Carbon::now(),
-            'po_price_total' => '',
-            'Po_cost_total' => '',
+            'po_price_total' => $po_price_total,
+            'po_cost_total' => $po_cost_total,
         ]);
 
-
+        foreach($item_ids as $key => $item_id) {
+            $pod = trx_po_d::create([
+                'po_h_id' => $newPO->id,
+                'po_item_id' => $item_id,
+                'po_item_qty' => $request->input('item_qty')[$key],
+                'po_item_price' => $po_price[$key],
+                'po_item_cost' => $po_cost[$key]
+            ]);
+        }
+        return $newPO;
     }
 
     public function updatePO(Request $request, $id) {
+        $item_ids = $request->input('item_id');
+        $po_price = [];
+        $po_cost = [];
+        $po_price_total = 0;
+        $po_cost_total = 0;
+        foreach($item_ids as $key => $item_id) {
+            $item = ms_item::find($item_id);
+            $po_price[$key] = $item->price * $request->input('item_qty')[$key];
+            $po_cost[$key] = $item->cost * $request->input('item_qty')[$key];
+            $po_price_total += $item->price * $request->input('item_qty')[$key];
+            $po_cost_total += $item->cost * $request->input('item_qty')[$key];
+        }
 
+        $updatePO = trx_po_h::where('id',$id)
+                ->update([
+                    'po_price_total' => $po_price_total,
+                    'po_cost_total' => $po_cost_total,
+                ]);
+
+        foreach($item_ids as $key => $item_id) {
+            $podUpdate = trx_po_d::where('po_h_id',$id)
+                    ->where('po_item_id',$item_id)
+                    ->update([
+                        'po_item_qty' => $request->input('item_qty')[$key],
+                        'po_item_price' => $po_price[$key],
+                        'po_item_cost' => $po_cost[$key]
+                    ]);
+        }
+
+        return $updatePO;
     }
 
     public function deletePO(Request $request, $id) {
+        $po = trx_po_h::find($id);
+        $po->delete();
+        $pod = trx_po_d::where('po_h_id',$id)->delete();
 
+        return $po;
     }
 }

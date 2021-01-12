@@ -16,10 +16,10 @@ class CreateMsItemsTable extends Migration
         Schema::create('ms_item', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('price');
+            $table->decimal('price');
             $table->decimal('cost');
             $table->timestamps();
-            $table->dateTime('deleted_at');
+            $table->dateTime('deleted_at')->nullable();
         });
     }
 
